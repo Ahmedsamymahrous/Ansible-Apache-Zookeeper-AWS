@@ -23,8 +23,8 @@
         dest: /tmp/
         remote_src: True
     
-    # - name: Move kafka to usr/local/kafka
-    #   command: mv /tmp/kafka_2.12-2.7.0 /usr/local/kafka
+     - name: Move kafka to usr/local/kafka
+       command: mv /tmp/kafka_2.12-2.7.0 /usr/local/kafka
 
     - name: Create file zookeeper.properties
       template:
