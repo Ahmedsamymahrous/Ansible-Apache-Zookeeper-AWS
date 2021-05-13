@@ -1,0 +1,77 @@
+- hosts: all
+  remote_user: ubuntu
+  become: yes
+
+  tasks:
+    - name: Update apt
+      apt:
+        update_cache: yes
+
+    - name: Install openjdk
+      apt:
+        name: openjdk-8-jdk
+        state: present
+
+    - name: Download kafka
+      get_url:
+        url:  https://downloads.apache.org/kafka/2.7.0/kafka_2.12-2.7.0.tgz
+        dest: /tmp/kafka_2.12-2.7.0.tgz
+
+    - name: Extract kafka
+      unarchive:
+        src:  /tmp/kafka_2.12-2.7.0.tgz
+        dest: /tmp/
+        remote_src: True
+    
+    # - name: Move kafka to usr/local/kafka
+    #   command: mv /tmp/kafka_2.12-2.7.0 /usr/local/kafka
+
+    - name: Create file zookeeper.properties
+      template:
+        src: ./zookeeper.properties
+        dest: /usr/local/kafka/config/zookeeper.properties      
+        mode: 0755
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Create file zookeeper.service
+      copy:
+        src: ./zookeeper-service
+        dest: /etc/systemd/system/zookeeper.service      
+        mode: 0755
+
+    - name: "Create data dir for zookeeper /data/zookeeper"
+      file:
+        path: /data/zookeeper
+        state: directory
+        mode: 0755
+        group: ubuntu
+        owner: ubuntu
+
+    - name: Create myid 1
+      shell: "echo 1 > /data/zookeeper/myid"
+      when: ansible_ssh_host == "18.116.231.25" 
+    
+    - name: Create myid 2
+      shell: "echo 2 > /data/zookeeper/myid"
+      when: ansible_ssh_host == "52.14.154.250"
+    
+    - name: Create myid 3
+      shell: "echo 3 > /data/zookeeper/myid"
+      when: ansible_ssh_host == "18.191.148.1"
+
+    - name: Daemon reload
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable zookeeper service 
+      systemd:
+        name: zookeeper.service
+        enabled: yes
+        masked: no    
+
+    - name: Start zookeeper service
+      service:
+        name: zookeeper.service
+        state: started      
+    
