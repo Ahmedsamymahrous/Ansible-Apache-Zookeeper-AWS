@@ -3,5 +3,5 @@ Ansible playbook that install Apache Zookeeper in three EC2 on AWS and configure
 
 ## Run The Playbook
 ```sh
-   ansible-playbook -i hosts playbook.yml --private-key aws_private_key.pem
+   ansible-playbook -i hosts playbook.yml --private-key <PRIVATE_KEY_FILE>
 ```
